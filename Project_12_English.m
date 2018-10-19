@@ -158,7 +158,7 @@ for i=1:length(vect)
     % temporal chunck of code that allows to exctract the language from it
     description=extractBetween(temp_extract, '<p aria-label="', '" id=');
     if (~isempty(description))
-        Language=string(corpusLanguage(description));
+        Language=string(py.langdetect.detect(string(description{:})));
         english="en";
     end
     if (strcmp(Language,english))
