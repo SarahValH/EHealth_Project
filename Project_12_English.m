@@ -6,7 +6,7 @@
 
 clc
 clear
-close all
+close all  
 
 %_______________URL Variable declaration and reading______________%
 
