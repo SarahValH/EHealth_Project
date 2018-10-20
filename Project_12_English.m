@@ -8,11 +8,14 @@ clc
 clear
 close all
 
+%Sets webread timeout up to 20 seconds (maximum for Windows 10 is 21 seconds)
+options = weboptions('Timeout',20);
+
 %_______________URL Variable declaration and reading______________%
 
 app_store = 'https://itunes.apple.com/us/genre/ios/id36?mt=8'; 
 root = 'https://itunes.apple.com/us/genre/';
-url_beginning = webread(app_store);
+url_beginning = webread(app_store, options);
 categories = ["ios-medical", "ios-health-fitness"];
 
 %___Initialization of vector containing the alphabet characters___%
@@ -39,7 +42,7 @@ for i = 1 : length(categories)       % from category 1 to the last
     for j = 1 : length(ASCII)
         t = extractBetween(url_beginning, categories(i), "?mt=8");  % Extracts the piece of URL of that category
         new_url = strcat(root, categories(i), t{1,1}, "?mt=8"); % Concatenates the root URL with the category URL
-        html_data = webread(new_url); % Reads the html code
+        html_data = webread(new_url, options); % Reads the html code
         new_url_let = strcat(new_url, "&letter=");
         band = 0;
         page = 0;
@@ -50,7 +53,7 @@ for i = 1 : length(categories)       % from category 1 to the last
             page = page + 1;
             strpage = string(page);
             new_url_letp = strcat(new_url_let, ASCII(j), "&page=", strpage, "#page");
-            html_data_let = webread(new_url_letp);
+            html_data_let = webread(new_url_letp, options);
             % Extracts from the html, the piece of text containing the applist
             txt_chunk = extractBetween(html_data_let, '<ul>', '</ul>');
             % Check if there's a paginate-more in the html which
@@ -149,7 +152,7 @@ notEnglish=0;
 merged_post = merged;
 for i=1:length(vect)
     url = merged.URL(vect(i));
-    html_features= webread(url{:});% Reads the html code of the random app
+    html_features= webread(url{:}, options);% Reads the html code of the random app
     
     % Since MetaMap works only with texts in English, we save only
     % those apps whose description is written in English.
@@ -387,6 +390,3 @@ save('AppsFeatures.mat','AppsFeatures')
 % saveAsExcelFile(indxMedical,M,'medical');
 % saveAsExcelFile((merged.URL)',merged,'merged');
 % saveAsExcelFile((AppsFeatures)',AppsFeatures,'AppsFeatures');
-
-%%%%%%%%AMBARABACICCICOCCò%%%%%%%%%
-%prova
