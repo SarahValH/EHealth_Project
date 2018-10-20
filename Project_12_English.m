@@ -138,7 +138,7 @@ merged.category = [catM;catHF];
 
 %%
 %__________________Feature Extraction_____________________%
-
+cont = 1;
 vect=round((length(merged.URL)-1).*rand(5,1))+1; 
 %vect is a vector containg random numbers, to extract the features for any 5 random apps in the list
 % is the length of the app-1 because rand() generates random numbers from 0
@@ -146,7 +146,8 @@ vect=round((length(merged.URL)-1).*rand(5,1))+1;
 % length and add it at the end.
 AppsFeatures = {};
 notEnglish=0;
-merged_post = merged;
+j = 1;
+
 for i=1:length(vect)
     url = merged.URL(vect(i));
     html_features= webread(url{:});% Reads the html code of the random app
@@ -307,7 +308,6 @@ for i=1:length(vect)
             features.perc1='NaN';
             
         else
-            
             %Feature 18: Current version: average user ratings (NO TEXT, ONLY NUMBERS)
             features.avgcurrat=extractBetween(html_features,'{"@type":"AggregateRating","ratingValue":',',"reviewCount"');
             
@@ -348,16 +348,23 @@ for i=1:length(vect)
         %Feature 27: Date Retrieved (set by user)
         features.retdate = date();
         
-        AppsFeatures{i,1} = features;
+        AppsFeatures{cont,1} = features;
+        merged_post.URL(cont) = merged.URL(vect(i));
+        merged_post.name(cont)=merged.name(vect(i));
+        merged_post.id(cont)=merged.id(vect(i));
+        merged_post.category(cont)=merged.category(vect(i));
+        cont = cont + 1;
+
     else
         notEnglish=notEnglish+1; % to know how many apps are not described in English
-        merged_post.URL(vect(i))=[];
-        merged_post.name(vect(i))=[];
-        merged_post.id(vect(i))=[];
-        merged_post.category(vect(i))=[];
+        if(i == 1)
+            cont = 1;
+        end
     end
 end
 
+
+%%
 indxMedical = find(strcmp("Medical", [merged_post.category{:}]));
 indxHF = find(strcmp("Health and Fitness", [merged_post.category{:}]));
 indxBoth = find(strcmp("Both", [merged_post.category{:}]));
