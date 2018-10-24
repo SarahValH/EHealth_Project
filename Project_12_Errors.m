@@ -160,14 +160,8 @@ indx_eng = [];
 indx_error = [];
 indx_feat = [];
 
-vect=round((length(merged.URL)-1).*rand(20,1))+1; 
-%vect is a vector containg random numbers, to extract the features for any 5 random apps in the list
-% is the length of the app-1 because rand() generates random numbers from 0
-% to 1, and since we don't want an index to be 0, we substract 1 to the
-% length and add it at the end.
-
-for i=1:length(vect)
-    url = merged.URL(vect(i));
+for i=1:length(merged.URL)
+    url = merged.URL(i);
     error = 0;
     next = 0;
     success = 0;
@@ -179,11 +173,9 @@ for i=1:length(vect)
             error = error+1;
             if(isequal(ME.identifier,'MATLAB:webservices:HTTP404StatusCodeError'))
                 next = 1;
-                indx_error = [indx_error vect(i)];
             end
             if(error == max_error && ~next)
                 next = 1;
-                indx_error = [indx_error vect(i)];
             end
         end
     end
@@ -199,15 +191,15 @@ for i=1:length(vect)
         end
         
         %Feature 1:  App ID
-        features.id=merged.id(vect(i));
+        features.id=merged.id(i);
         % Since we already have this information it takes it from the variable app.id
         
         %Feature 2: App Name
-        features.name=merged.name(vect(i));
+        features.name=merged.name(i);
         % Since we already have this information it takes it from the variable app.name
         
         %Feature 3: App URL
-        features.URL=merged.URL(vect(i));
+        features.URL=merged.URL(i);
         % Since we already have this information it takes it from the variable app.URL
         
         %Feature 4: App Description (Unstructured text)
@@ -269,7 +261,7 @@ for i=1:length(vect)
         end
         
         %Feature 12: Category (medical, health and fitness, or both)
-        features.category = merged.category(vect(i));
+        features.category = merged.category(i);
         % Since we already have this information it takes it from the variable app.category
         
         
@@ -377,12 +369,13 @@ for i=1:length(vect)
         features.retdate = date();
         
         if (strcmp(Language,english))
-            indx_eng = [indx_eng vect(i)];
-            indx_feat = [indx_feat i];
+            indx_eng = [indx_eng i];
         else
             notEnglish=notEnglish+1; % to know how many apps are not described in English
         end
         AppsFeatures{i,1} = features;
+    else
+        indx_error = [indx_error i];
     end
 end
 
@@ -390,12 +383,12 @@ merged_post.URL = merged.URL(indx_eng);
 merged_post.id = merged.id(indx_eng);
 merged_post.name = merged.name(indx_eng);
 merged_post.category = merged.category(indx_eng);
-AppsFeatures_post = AppsFeatures(indx_feat);
+AppsFeatures_post = AppsFeatures(indx_eng);
 
 %%
-indxMedical = find(strcmp("Medical", [merged_post.category{:}]));
-indxHF = find(strcmp("Health and Fitness", [merged_post.category{:}]));
-indxBoth = find(strcmp("Both", [merged_post.category{:}]));
+indxMedical = find(strcmp("Medical", [merged_post.category]));
+indxHF = find(strcmp("Health and Fitness", [merged_post.category]));
+indxBoth = find(strcmp("Both", [merged_post.category]));
 % Medical dataset
 M_post.URL = merged_post.URL(indxMedical);
 M_post.name = merged_post.name(indxMedical);
@@ -412,14 +405,15 @@ HnF_post.name = merged_post.name(indxBoth);
 HnF_post.id = merged_post.id(indxBoth);
 
 % Saves the results
-save('merged.mat', 'merged')
-save('M.mat', 'M')
-save('HnF.mat', 'HnF')
+save('merged_pre.mat', 'merged')
+save('M_pre.mat', 'M')
+save('HnF_pre.mat', 'HnF')
+save('AppsFeatures_pre.mat','AppsFeatures')
 
-save('merged_post.mat', 'merged')
-save('M_post.mat', 'M')
-save('HnF_post.mat', 'HnF')
-save('AppsFeatures.mat','AppsFeatures')
+save('merged_post.mat', 'merged_post')
+save('M_post.mat', 'M_post')
+save('HnF_post.mat', 'HnF_post')
+save('AppsFeatures_post.mat','AppsFeatures_post')
 
 % % Exports tables as excel files
 % saveAsExcelFile(indxHF,HnF,'health_and_fitness');
